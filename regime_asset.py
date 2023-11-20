@@ -6,8 +6,8 @@ yf.pdr_override() # 야후에서 데이터를 획득하는 방식이 크롤링�
 import pandas as pd
 
 # ETF ticker
-ticker = ['SPY', 'LQD', 'TLT', 'HYG', 'EMB']
-# 순서대로 equity(주식), corporate(회사채), Treasury(국채), HY(고수익), Emerging market bond
+ticker = ['SPY', 'HYG', 'EMB', 'LQD', 'TLT']
+# 순서대로 equity(주식), HY(고수익), Emerging market bond, corporate(회사채), Treasury(국채)
 etf_close = pd.DataFrame()
 start = '2007-12-31'
 end = '2021-12-31'
@@ -50,15 +50,15 @@ def calculate_total_returns(*dfs):
     # 총 수익률을 저장할 딕셔너리 초기화
     total_returns = {}
     columns = ['Recovery', 'Expansion', 'Slowdown', 'Contraction', 'Buy and Hold']
-    etf_name = ['Equity', 'Corporate', 'Treasury', 'HY', 'EM']
+    etf_name = ['Equity', 'HY', 'EM', 'Corporate', 'Treasury']
     
     # 각 데이터프레임에 대해 총 수익률 계산
     for df, column in zip(dfs, columns):
         regime_returns = {}
         for etf in df.columns[1:]:  # 첫 번째 열(Date)을 제외하고 계산
-            total_return = (df[etf] + 1).prod() - 1
+            total_return = ((df[etf] + 1).prod() - 1) * 100 # percent 단위로 표현함
             regime_returns[etf] = total_return
-        total_returns[column] = regime_returns
+        total_returns[column] = regime_returns 
 
     # 결과를 데이터프레임으로 변환
     total_return_df = pd.DataFrame(total_returns)

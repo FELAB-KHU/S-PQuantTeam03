@@ -29,11 +29,18 @@ expansion = pd.read_csv('expansion_df.csv')
 slowdown = pd.read_csv('slowdown_df.csv')
 contraction = pd.read_csv('contraction_df.csv')
 
+#YYYY-MM 형식으로 바꾸기
+recovery['Date'] = pd.to_datetime(recovery['Date']).dt.strftime('%Y-%m')
+expansion['Date'] = pd.to_datetime(expansion['Date']).dt.strftime('%Y-%m')
+slowdown['Date'] = pd.to_datetime(slowdown['Date']).dt.strftime('%Y-%m')
+contraction['Date'] = pd.to_datetime(contraction['Date']).dt.strftime('%Y-%m')
+
 # 전체 기간 데이터 (Buy&Hold)
 buy_hold = pd.concat([recovery, expansion, slowdown, contraction])
 # Accelerating & Decelerating 기간 데이터
 accelerating = pd.concat([recovery, expansion])
 decelerating = pd.concat([slowdown, contraction])
+
 
 # DATE 열을 DatetimeIndex로 바꿔주는 함수
 def convert_date(df):
@@ -43,21 +50,26 @@ def convert_date(df):
 
 # DATE열과 Return열로 구성된 df를 입력에 넣으면, 연율화된 수익률의 평균 수치와 표준편차를 계산해주는 함수
 def annual_ret_std(df):
-    #year별로 데이터를 묶고 각 year마다 연율화된 return을 구함
-    annual_returns = []
+    annualized_returns = []
+    annual_stds = []
     for year, group in df.groupby(df.index.year):
-        returns = group['Return']
-        # 해당 year에 데이터가 있을 때만 연율화된 return을 구함
-        if not returns.empty:
-            annualized_ret = (1 + returns/100).prod()**(12 / len(returns)) - 1
-            annual_returns.append(annualized_ret)
-    # 연율화된 return의 평균을 구함
-    avg_annual_return = np.mean(annual_returns) if annual_returns else None
-    std = df['Return'].std()
-    # 평균 연율화된 수익률과 표준 편차를 백분율로 변환
-    avg_annual_return = round(avg_annual_return * 100, 2)
-    std = round(std * 100, 2)
-    return avg_annual_return, std
+        # 연도별 평균 수익률 계산
+        yearly_average_return = group['Return'].mean()
+        # 연율화된 수익률 계산
+        annualized_ret = ((1 + yearly_average_return / 100) ** 12) - 1
+        annualized_returns.append(annualized_ret)
+        annual_stds.append(group['Return'].std())
+
+    # 연율화된 수익률들의 평균과 연간 표준편차의 평균 계산
+    avg_annualized_return = np.mean(annualized_returns) * 100
+    avg_std = np.std(annualized_returns) * 100  # annualized_returns를 numpy 배열로 변환하여 std() 사용
+
+    # 결과를 소수점 둘째자리로 반올림
+    avg_annualized_return = round(avg_annualized_return, 2)
+    avg_std = round(avg_std, 2)
+
+    return avg_annualized_return, avg_std
+
 
 # risk premium data랑 국면 data를 입력하면, 국면에 해당하는 data만 반환하는 함수
 def regime_data(return_df, regime_df):
@@ -111,7 +123,6 @@ eq2_acc_ret, eq2_acc_std = annual_ret_std(eq2_accelerating)
 eq2_decelerating = regime_data(eq2, decelerating)
 eq2_dec_ret, eq2_dec_std = annual_ret_std(eq2_decelerating)
 
-#%%
 # Term Risk Premium1
 # Buy & Hold
 term1_BH = regime_data(term1, buy_hold)
@@ -250,7 +261,7 @@ credit3_acc_ret, credit3_acc_std = annual_ret_std(credit3_accelerating)
 credit3_decelerating = regime_data(credit3, decelerating)
 credit3_dec_ret, credit3_dec_std = annual_ret_std(credit3_decelerating)
 
-#%%
+
 eq_ret_list = [eq1_BH_ret, eq1_rec_ret, eq1_exp_ret, eq1_slow_ret, eq1_con_ret, eq1_acc_ret, eq1_dec_ret,
             eq2_BH_ret, eq2_rec_ret, eq2_exp_ret, eq2_slow_ret, eq2_con_ret, eq2_acc_ret, eq2_dec_ret]
 term_ret_list = [term1_BH_ret, term1_rec_ret, term1_exp_ret, term1_slow_ret, term1_con_ret, term1_acc_ret, term1_dec_ret,
@@ -268,13 +279,13 @@ credit_std_list = [credit1_BH_std, credit1_rec_std, credit1_exp_std, credit1_slo
             credit2_BH_std, credit2_rec_std, credit2_exp_std, credit2_slow_std, credit2_con_std, credit2_acc_std, credit2_dec_std,
             credit3_BH_std, credit3_rec_std, credit3_exp_std, credit3_slow_std, credit3_con_std, credit3_acc_std, credit3_dec_std]
 
-print(eq_ret_list)
-print(term_ret_list)
-print(credit_ret_list)
+print( "equity return : ", eq_ret_list)
+print("term return : ", term_ret_list)
+print("credit return ", credit_ret_list)
 
-print(eq_std_list)
-print(term_std_list)
-print(credit_ret_list)
+print("equity std : ", eq_std_list)
+print("term std : ", term_std_list)
+print("credit std : ", credit_std_list)
 
 #%%
 # 리스트를 7개씩 묶어서 2차원 리스트로 만들고 데이터프레임으로 만드는 함수
@@ -298,5 +309,3 @@ credit_ret_df.to_csv('credit_ret.csv', index=False, header=False)
 eq_std_df.to_csv('eq_std.csv', index=False, header=False)
 term_std_df.to_csv('term_std.csv', index=False, header=False)
 credit_std_df.to_csv('credit_std.csv', index=False, header=False)
-
-# %%

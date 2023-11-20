@@ -94,9 +94,9 @@ US_3Y = percent_M_data('DGS3', start, end) # 1993-01도 있음
 US_7Y = percent_M_data('DGS7', start, end) # 1993-01도 있음
 US_10Y = percent_M_data('DGS10', start, end) # 1993-01도 있음
 
-Term_1 = US_3Y
-Term_2 = US_7Y
-Term_3 = US_10Y
+Term_1 = minus(US_3Y, US_3M)
+Term_2 = minus(US_7Y, US_3M)
+Term_3 = minus(US_10Y, US_3M)
 
 # 열이름 수정
 Term_1.rename(columns={'DGS3': 'Return'}, inplace=True)
@@ -112,3 +112,4 @@ Credit_3.to_csv('Credit_3.csv')
 Term_1.to_csv('Term_1.csv')
 Term_2.to_csv('Term_2.csv')
 Term_3.to_csv('Term_3.csv')
+
