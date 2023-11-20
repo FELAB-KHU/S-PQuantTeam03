@@ -1,8 +1,10 @@
-# 월별 Risk Premium을 계산하는 코드
+# 해야할 일 Risk Premium을 계산하기
+# 월별 premium을 구하기
 
-# Equity Premium은 단순 수익률이 아니라, Total 수익률을 가지고 계산
-# Credit Premium은 4가지 케이스에서 회사채에서 3M 국채를 빼는 것으로 수익률을 계산
-# Term Premium은 duration 별 3가지 케이스에서 단순 수익률을 계산
+# Equity Premium은 단순 수익률이 아니라, Total 수익률을 가지고 계산해야 함
+# Credit Premium은 4가지 케이스에서 회사채에서 3M 국채를 빼는 것으로 단순 수익률을 계산함
+# Term Premium은 duration 별 3가지 케이스에서 단순 수익률을 계산함
+
 
 # Equity Premium
 # S&P500 Total Return Index (SP500) - 10Y US Treasury Total Return (DGS10)
@@ -10,6 +12,7 @@
 
 # Credit Premium
 # High Yield (BAMLH0A0HYM2EY) - 3M T-bill (DGS3MO)
+# Leverage Loan (BOGZ1FL623069503Q) - 3M T-bill (DGS3MO) -> 안 쓰기로 함
 # EM US Dollar Index (DTWEXEMEGS) - 3M T-bill (DGS3MO)
 # Investment Grade (WAAA) - 3M T-bill(DGS3MO)
 
@@ -18,6 +21,7 @@
 # 7Y US Treasury (DGS7)
 # 10Y US Treasury (DGS10)
 
+#%%
 from pandas_datareader import data as web
 import datetime
 import yfinance as yf
@@ -29,7 +33,7 @@ def percent_M_data(ticker, start, end):
     data = web.DataReader(ticker, 'fred', start, end).dropna()
     # 각 월별 데이터를 1에 더하고 누적곱을 구함
     data = (1 + data / 100).resample('M').prod() - 1
-    # data = data.resample('M').apply(lambda x: (1 + x/100).prod() - 1) # 같은 결과
+    #data = data.resample('M').apply(lambda x: (1 + x/100).prod() - 1)
     data.index = data.index.strftime('%Y-%m')
     return data
 
@@ -42,6 +46,7 @@ def index_M_data(ticker, start, end):
     data = (data_monthly_end - data_monthly_start) / data_monthly_start
     data.index = data.index.strftime('%Y-%m')
     return data
+
 
 # 인덱스가 다른 데이터 간의 수익률을 빼는 연산 함수
 def minus(df1, df2):
@@ -68,7 +73,8 @@ SP500.index = SP500.index.strftime("%Y-%m")
 # Equity Premium에 필요한 데이터
 #SP500 = index_M_data('SP500', start, end) # 2013-11부터 있음
 US_10Y = percent_M_data('DGS10', start, end) # 1993-01도 있음
-Corp_10Y = percent_M_data('HQMCB10YR', start, end) # 1993-01도 있음
+Corp_10Y = web.DataReader('HQMCB10YR', 'fred', start, end).dropna()
+Corp_10Y.index = Corp_10Y.index.strftime('%Y-%m') # 1993-01도 있음
 
 Eq_1 = minus(SP500, US_10Y)
 Eq_2 = minus(SP500, Corp_10Y)
@@ -91,3 +97,18 @@ US_10Y = percent_M_data('DGS10', start, end) # 1993-01도 있음
 Term_1 = US_3Y
 Term_2 = US_7Y
 Term_3 = US_10Y
+
+# 열이름 수정
+Term_1.rename(columns={'DGS3': 'Return'}, inplace=True)
+Term_2.rename(columns={'DGS7': 'Return'}, inplace=True)
+Term_3.rename(columns={'DGS10': 'Return'}, inplace=True)
+
+# csv파일로 저장
+Eq_1.to_csv('Eq_1.csv')
+Eq_2.to_csv('Eq_2.csv')
+Credit_1.to_csv('Credit_1.csv')
+Credit_2.to_csv('Credit_2.csv')
+Credit_3.to_csv('Credit_3.csv')
+Term_1.to_csv('Term_1.csv')
+Term_2.to_csv('Term_2.csv')
+Term_3.to_csv('Term_3.csv')
