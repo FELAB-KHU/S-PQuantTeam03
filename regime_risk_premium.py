@@ -5,7 +5,7 @@
 # 위의 12개 csv 파일이 필요함
 
 # 코드를 실행하면 eq_ret.csv, term_ret.csv, credit_ret.csv와 eq_std.csv, term_ret.csv, credit_ret.csv가 생성됨
-
+#%%
 import pandas as pd
 import numpy as np
 import warnings
@@ -48,6 +48,7 @@ def convert_date(df):
     df.set_index('DATE', inplace=True)
     return df
 
+
 # DATE열과 Return열로 구성된 df를 입력에 넣으면, 연율화된 수익률의 평균 수치와 표준편차를 계산해주는 함수
 def annual_ret_std(df):
     annualized_returns = []
@@ -56,8 +57,8 @@ def annual_ret_std(df):
         # 연도별 평균 수익률 계산
         yearly_average_return = group['Return'].mean()
         # 연율화된 수익률 계산
-        annualized_ret = ((1 + yearly_average_return / 100) ** 12) - 1
-        annualized_returns.append(annualized_ret)
+        #annualized_ret = ((1 + yearly_average_return / 100) ** 12) - 1
+        annualized_returns.append(yearly_average_return)
         annual_stds.append(group['Return'].std())
 
     # 연율화된 수익률들의 평균과 연간 표준편차의 평균 계산
@@ -76,7 +77,9 @@ def regime_data(return_df, regime_df):
     df = convert_date(return_df[return_df['DATE'].isin(regime_df['Date'])])
     return df
 
+
 ####################################################################################
+
 # Equity Risk Premium1
 # Buy & Hold
 eq1_BH = regime_data(eq1, buy_hold)
@@ -261,7 +264,13 @@ credit3_acc_ret, credit3_acc_std = annual_ret_std(credit3_accelerating)
 credit3_decelerating = regime_data(credit3, decelerating)
 credit3_dec_ret, credit3_dec_std = annual_ret_std(credit3_decelerating)
 
-
+eq_ret_list = [eq1_BH_ret, eq1_rec_ret, eq1_exp_ret, eq1_slow_ret, eq1_con_ret, eq1_acc_ret, eq1_dec_ret]
+term_ret_list = [term3_BH_ret, term3_rec_ret, term3_exp_ret, term3_slow_ret, term3_con_ret, term3_acc_ret, term3_dec_ret]
+credit_ret_list = [credit3_BH_ret, credit3_rec_ret, credit3_exp_ret, credit3_slow_ret, credit3_con_ret, credit3_acc_ret, credit3_dec_ret]
+eq_std_list = [eq1_BH_std, eq1_rec_std, eq1_exp_std, eq1_slow_std, eq1_con_std, eq1_acc_std, eq1_dec_std]
+term_std_list = [term3_BH_std, term3_rec_std, term3_exp_std, term3_slow_std, term3_con_std, term3_acc_std, term3_dec_std]
+credit_std_list = [credit3_BH_std, credit3_rec_std, credit3_exp_std, credit3_slow_std, credit3_con_std, credit3_acc_std, credit3_dec_std]
+'''
 eq_ret_list = [eq1_BH_ret, eq1_rec_ret, eq1_exp_ret, eq1_slow_ret, eq1_con_ret, eq1_acc_ret, eq1_dec_ret,
             eq2_BH_ret, eq2_rec_ret, eq2_exp_ret, eq2_slow_ret, eq2_con_ret, eq2_acc_ret, eq2_dec_ret]
 term_ret_list = [term1_BH_ret, term1_rec_ret, term1_exp_ret, term1_slow_ret, term1_con_ret, term1_acc_ret, term1_dec_ret,
@@ -278,7 +287,7 @@ term_std_list = [term1_BH_std, term1_rec_std, term1_exp_std, term1_slow_std, ter
 credit_std_list = [credit1_BH_std, credit1_rec_std, credit1_exp_std, credit1_slow_std, credit1_con_std, credit1_acc_std, credit1_dec_std,
             credit2_BH_std, credit2_rec_std, credit2_exp_std, credit2_slow_std, credit2_con_std, credit2_acc_std, credit2_dec_std,
             credit3_BH_std, credit3_rec_std, credit3_exp_std, credit3_slow_std, credit3_con_std, credit3_acc_std, credit3_dec_std]
-
+'''
 print( "equity return : ", eq_ret_list)
 print("term return : ", term_ret_list)
 print("credit return ", credit_ret_list)
@@ -287,7 +296,7 @@ print("equity std : ", eq_std_list)
 print("term std : ", term_std_list)
 print("credit std : ", credit_std_list)
 
-#%%
+
 # 리스트를 7개씩 묶어서 2차원 리스트로 만들고 데이터프레임으로 만드는 함수
 def item7csv(ret_list):
     num_per_row = 7
@@ -309,3 +318,5 @@ credit_ret_df.to_csv('credit_ret.csv', index=False, header=False)
 eq_std_df.to_csv('eq_std.csv', index=False, header=False)
 term_std_df.to_csv('term_std.csv', index=False, header=False)
 credit_std_df.to_csv('credit_std.csv', index=False, header=False)
+
+# %%

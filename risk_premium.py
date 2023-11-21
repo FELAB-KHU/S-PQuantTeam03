@@ -31,9 +31,7 @@ import matplotlib.pyplot as plt
 # 원래 데이터가 percent이고, 데이터를 월별 수익률로 만들어주는 함수
 def percent_M_data(ticker, start, end):
     data = web.DataReader(ticker, 'fred', start, end).dropna()
-    # 각 월별 데이터를 1에 더하고 누적곱을 구함
-    data = (1 + data / 100).resample('M').prod() - 1
-    #data = data.resample('M').apply(lambda x: (1 + x/100).prod() - 1)
+    data = data.resample('M').mean() / 100
     data.index = data.index.strftime('%Y-%m')
     return data
 
@@ -58,16 +56,18 @@ def minus(df1, df2):
     return result
 
 # 설정된 시작일과 종료일
-start = datetime.datetime(1998, 1, 1)
+start = datetime.datetime(2002, 12, 31)
 end = datetime.datetime(2021, 12, 31)
 
 # S&P 500 지수의 월별 데이터 가져오기
-sp500_monthly_data = yf.download('^GSPC', start='1997-12-01', end='2021-12-31', interval='1mo')
+sp500_monthly_data = yf.download('^GSPC', start='2002-12-31', end='2021-12-31', interval='1mo')
 sp500_adj_close = sp500_monthly_data['Adj Close']
 sp500_returns = sp500_adj_close.pct_change().dropna()
+sp500_returns = ((1 + sp500_returns) ** 12) - 1
 SP500 = pd.DataFrame({'DATE': sp500_returns.index, 'S&P 500': sp500_returns.values})
 SP500.set_index("DATE", inplace=True)
 SP500.index = SP500.index.strftime("%Y-%m")
+
 
 # 필요한 데이터를 FRED에서 가져오기
 # Equity Premium에 필요한 데이터
@@ -97,11 +97,6 @@ US_10Y = percent_M_data('DGS10', start, end) # 1993-01도 있음
 Term_1 = minus(US_3Y, US_3M)
 Term_2 = minus(US_7Y, US_3M)
 Term_3 = minus(US_10Y, US_3M)
-
-# 열이름 수정
-Term_1.rename(columns={'DGS3': 'Return'}, inplace=True)
-Term_2.rename(columns={'DGS7': 'Return'}, inplace=True)
-Term_3.rename(columns={'DGS10': 'Return'}, inplace=True)
 
 # csv파일로 저장
 Eq_1.to_csv('Eq_1.csv')
