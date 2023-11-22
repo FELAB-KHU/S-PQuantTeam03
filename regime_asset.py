@@ -7,7 +7,6 @@ yf.pdr_override() # 야후에서 데이터를 획득하는 방식이 크롤링�
 import pandas as pd
 
 # ETF ticker
-##ticker = ['SPY', 'HYG', 'EMB', 'LQD', 'TLT']
 ticker = ['SPY', 'LQD', 'IEF']
 # 순서대로 equity(주식), HY(고수익), Emerging market bond, corporate(회사채), Treasury(국채)
 etf_close = pd.DataFrame()
@@ -53,7 +52,6 @@ def calculate_total_returns(*dfs):
     # 총 수익률을 저장할 딕셔너리 초기화
     total_returns = {}
     columns = ['Recovery', 'Expansion', 'Slowdown', 'Contraction', 'Buy and Hold']
-    ##etf_name = ['Equity', 'HY', 'EM', 'Corporate', 'Treasury']
     etf_name = ['Equity', 'Corporate', 'Treasury']
 
     # 각 데이터프레임에 대해 총 수익률 계산
@@ -81,3 +79,5 @@ print(final_returns)
 # final_returns 데이터프레임을 CSV 파일로 저장
 final_returns.to_csv('Panel_B.csv', index=True)
 
+
+# %%

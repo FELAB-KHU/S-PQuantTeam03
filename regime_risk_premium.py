@@ -75,8 +75,11 @@ def annual_ret_std(df):
 # risk premium data랑 국면 data를 입력하면, 국면에 해당하는 data만 반환하는 함수
 def regime_data(return_df, regime_df):
     df = convert_date(return_df[return_df['DATE'].isin(regime_df['Date'])])
+    
+    # df = df.pct_change() + 1
+    # df = df.rolling(window=12).apply(lambda x: x.prod(), raw=True) - 1
+    # df = df.dropna()
     return df
-
 
 ####################################################################################
 
@@ -288,6 +291,8 @@ credit_std_list = [credit1_BH_std, credit1_rec_std, credit1_exp_std, credit1_slo
             credit2_BH_std, credit2_rec_std, credit2_exp_std, credit2_slow_std, credit2_con_std, credit2_acc_std, credit2_dec_std,
             credit3_BH_std, credit3_rec_std, credit3_exp_std, credit3_slow_std, credit3_con_std, credit3_acc_std, credit3_dec_std]
 '''
+#%%
+print("                 B&H, Recovery, Exp, Slowdown, Cont, Accel, Decelerating")
 print( "equity return : ", eq_ret_list)
 print("term return : ", term_ret_list)
 print("credit return ", credit_ret_list)
@@ -296,7 +301,7 @@ print("equity std : ", eq_std_list)
 print("term std : ", term_std_list)
 print("credit std : ", credit_std_list)
 
-
+#%%
 # 리스트를 7개씩 묶어서 2차원 리스트로 만들고 데이터프레임으로 만드는 함수
 def item7csv(ret_list):
     num_per_row = 7

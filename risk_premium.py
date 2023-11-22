@@ -63,7 +63,7 @@ end = datetime.datetime(2021, 12, 31)
 sp500_monthly_data = yf.download('^GSPC', start='2002-12-31', end='2021-12-31', interval='1mo')
 sp500_adj_close = sp500_monthly_data['Adj Close']
 sp500_returns = sp500_adj_close.pct_change().dropna()
-sp500_returns = ((1 + sp500_returns) ** 12) - 1
+sp500_returns = sp500_returns * 12
 SP500 = pd.DataFrame({'DATE': sp500_returns.index, 'S&P 500': sp500_returns.values})
 SP500.set_index("DATE", inplace=True)
 SP500.index = SP500.index.strftime("%Y-%m")
@@ -107,4 +107,3 @@ Credit_3.to_csv('Credit_3.csv')
 Term_1.to_csv('Term_1.csv')
 Term_2.to_csv('Term_2.csv')
 Term_3.to_csv('Term_3.csv')
-
