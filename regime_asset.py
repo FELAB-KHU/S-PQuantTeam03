@@ -2,25 +2,14 @@
 # 1. ETF 수익률 가져오기
 # 2. 국면별 날짜 데이터 불러오기
 # 3. 국면별 날짜들의 ETF별 총 수익률 계산하기
-import yfinance as yf
-yf.pdr_override() # 야후에서 데이터를 획득하는 방식이 크롤링으로 변경
+
 import pandas as pd
 
-# ETF ticker
-ticker = ['SPY', 'LQD', 'IEF']
-# 순서대로 equity(주식), HY(고수익), Emerging market bond, corporate(회사채), Treasury(국채)
-etf_close = pd.DataFrame()
-start = '2002-12-31'
-end = '2022-12-31'
-for i in ticker:
-  etf_close[i] = yf.download(i, start=start, end=end)['Adj Close'] # download 방법
-
-etf_return = etf_close.pct_change().dropna()
-etf_month = etf_return.resample('M').apply(lambda x: (1 + x).prod() - 1)
+etf_month = pd.read_csv('etf_month(regime).csv')
+etf_month['Date'] = pd.to_datetime(etf_month['Date'])
+etf_month = etf_month.set_index('Date')
+etf_month = etf_month.drop(['regime'], axis = 1)
 etf_month.index = etf_month.index.strftime('%Y-%m')
-#etf_month # = etf_month*100
-
-# 현재는 0.05 상태, *100 하면 5로 바뀜
 
 # 국면별 날짜(월) 데이터 불러오기
 recovery = pd.read_csv('recovery_df.csv')
