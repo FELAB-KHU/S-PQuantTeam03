@@ -11,7 +11,7 @@ ticker = ['SPY', 'LQD', 'IEF']
 # 순서대로 equity(주식), HY(고수익), Emerging market bond, corporate(회사채), Treasury(국채)
 etf_close = pd.DataFrame()
 start = '2002-12-31'
-end = '2021-12-31'
+end = '2022-12-31'
 for i in ticker:
   etf_close[i] = yf.download(i, start=start, end=end)['Adj Close'] # download 방법
 
@@ -75,9 +75,5 @@ final_returns = final_returns.round(2).apply(lambda x: x.map(lambda y: f'{y}%'))
 # 결과 확인
 print(final_returns)
 
-#%%
 # final_returns 데이터프레임을 CSV 파일로 저장
 final_returns.to_csv('Panel_B.csv', index=True)
-
-
-# %%

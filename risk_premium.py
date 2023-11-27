@@ -57,10 +57,10 @@ def minus(df1, df2):
 
 # 설정된 시작일과 종료일
 start = datetime.datetime(2002, 12, 31)
-end = datetime.datetime(2021, 12, 31)
+end = datetime.datetime(2022, 12, 31)
 
 # S&P 500 지수의 월별 데이터 가져오기
-sp500_monthly_data = yf.download('^GSPC', start='2002-12-31', end='2021-12-31', interval='1mo')
+sp500_monthly_data = yf.download('^GSPC', start='2002-12-31', end='2022-12-31', interval='1mo')
 sp500_adj_close = sp500_monthly_data['Adj Close']
 sp500_returns = sp500_adj_close.pct_change().dropna()
 sp500_returns = sp500_returns * 12
@@ -107,3 +107,4 @@ Credit_3.to_csv('Credit_3.csv')
 Term_1.to_csv('Term_1.csv')
 Term_2.to_csv('Term_2.csv')
 Term_3.to_csv('Term_3.csv')
+# %%
