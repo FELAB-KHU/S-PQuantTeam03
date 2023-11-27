@@ -60,7 +60,7 @@ start = datetime.datetime(2002, 12, 31)
 end = datetime.datetime(2022, 12, 31)
 
 # S&P 500 지수의 월별 데이터 가져오기
-sp500_monthly_data = yf.download('^GSPC', start='2002-12-31', end='2022-12-31', interval='1mo')
+sp500_monthly_data = yf.download('^GSPC', start='2002-11-30', end='2022-12-31', interval='1mo')
 sp500_adj_close = sp500_monthly_data['Adj Close']
 sp500_returns = sp500_adj_close.pct_change().dropna()
 sp500_returns = sp500_returns * 12
@@ -71,7 +71,6 @@ SP500.index = SP500.index.strftime("%Y-%m")
 
 # 필요한 데이터를 FRED에서 가져오기
 # Equity Premium에 필요한 데이터
-#SP500 = index_M_data('SP500', start, end) # 2013-11부터 있음
 US_10Y = percent_M_data('DGS10', start, end) # 1993-01도 있음
 Corp_10Y = web.DataReader('HQMCB10YR', 'fred', start, end).dropna()
 Corp_10Y.index = Corp_10Y.index.strftime('%Y-%m') # 1993-01도 있음
@@ -98,6 +97,10 @@ Term_1 = minus(US_3Y, US_3M)
 Term_2 = minus(US_7Y, US_3M)
 Term_3 = minus(US_10Y, US_3M)
 
+Term_1 = Term_1[1:]
+Term_2 = Term_2[1:]
+Term_3 = Term_3[1:]
+
 # csv파일로 저장
 Eq_1.to_csv('Eq_1.csv')
 Eq_2.to_csv('Eq_2.csv')
@@ -107,4 +110,3 @@ Credit_3.to_csv('Credit_3.csv')
 Term_1.to_csv('Term_1.csv')
 Term_2.to_csv('Term_2.csv')
 Term_3.to_csv('Term_3.csv')
-# %%
